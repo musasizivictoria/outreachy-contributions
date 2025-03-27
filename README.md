@@ -1,13 +1,16 @@
-# Drug Absorption Prediction Model
+# Drug Absorption Prediction Model 🧬
 
-## Project Overview
-This project focuses on developing a machine learning model to predict drug absorption using the Caco2_Wang dataset from Therapeutics Data Commons (TDC). The goal is to create a binary classifier that can predict whether a drug compound will have high or low permeability through the Caco2 cell membrane.
+## Project Overview 🎯
+This project develops a machine learning model to predict drug absorption using the Caco2_Wang dataset from Therapeutics Data Commons (TDC). Our goal is to create a binary classifier that predicts whether a drug compound will have high or low permeability through the Caco2 cell membrane.
 
-### Why This Dataset Matters
-The Caco2_Wang dataset is particularly valuable for drug discovery because:
-1. It provides experimental measurements from Caco2 cells, which are derived from human colorectal adenocarcinoma and serve as a well-established model for intestinal absorption
-2. The data represents actual permeability measurements in cm/s, making it directly relevant to drug development
-3. The dataset is well-balanced (51.6% low permeability vs 48.4% high permeability) and of moderate size (910 compounds), making it suitable for machine learning
+### 📊 Dataset Significance
+The Caco2_Wang dataset is crucial for drug discovery:
+
+| Feature | Description |
+|---------|-------------|
+| Cell Model | Caco2 cells from human colorectal adenocarcinoma - established intestinal absorption model |
+| Measurements | Actual permeability in cm/s - directly relevant to drug development |
+| Data Quality | Well-balanced (51.6% low vs 48.4% high permeability), 910 compounds |
 
 ## Understanding the Data
 
@@ -30,13 +33,14 @@ While the Caco2_Wang dataset originally provides continuous permeability values 
 2. The cutoff value (8 × 10⁻⁶ cm/s) is well-established in pharmaceutical research
 3. In drug discovery, the binary high/low permeability classification is often more actionable than exact values
 
-### Dataset Composition
-- **Total Size**: 910 compounds
-- **Class Balance**: Near-perfect (51.6% low, 48.4% high permeability)
-- **Data Splits**:
-  - Training: 637 compounds (51.6% low, 48.4% high)
-  - Validation: 91 compounds (46.2% low, 53.8% high)
-  - Test: 182 compounds (54.4% low, 45.6% high)
+### 📈 Dataset Composition
+
+| Split | Size | Low Permeability | High Permeability |
+|-------|------|------------------|-------------------|
+| Total | 910 | 51.6% | 48.4% |
+| Training | 637 | 51.6% | 48.4% |
+| Validation | 91 | 46.2% | 53.8% |
+| Test | 182 | 54.4% | 45.6% |
 
 ### Molecular Properties
 - **Input Format**: SMILES strings (molecular structure)
@@ -48,20 +52,15 @@ While the Caco2_Wang dataset originally provides continuous permeability values 
   - Hydrogen (~9%)
   - Other elements (~4%)
 
-## Project Structure
-```
-.
-├── data/               # Dataset and analysis files
-│   ├── caco2_train.csv   # Training set (637 compounds)
-│   ├── caco2_valid.csv   # Validation set (91 compounds)
-│   ├── caco2_test.csv    # Test set (182 compounds)
-│   └── dataset_summary.md # Detailed dataset analysis
-├── notebooks/         # Jupyter notebooks for analysis
-├── scripts/           # Python scripts
-├── models/            # Saved model checkpoints
-├── requirements.txt   # Project dependencies
-└── README.md         # Project documentation
-```
+## 📂 Project Structure
+
+| Directory | Purpose | Contents |
+|-----------|---------|----------|
+| `data/` | Dataset files | - `caco2_train.csv` (637 compounds)<br>- `caco2_valid.csv` (91 compounds)<br>- `caco2_test.csv` (182 compounds)<br>- `dataset_summary.md` |
+| `notebooks/` | Analysis | Jupyter notebooks |
+| `scripts/` | Core code | Python implementation files |
+| `models/` | Checkpoints | Saved model states |
+| Root | Configuration | - `requirements.txt`<br>- `README.md` |
 
 ## Installation Guide
 
@@ -114,26 +113,77 @@ This will:
 
 ### 3. Molecular Featurization
 
-#### Implementation Journey
+#### 🛠️ Implementation Journey
 
-1. **Initial Approach - Uni-Mol Model**
-   - I originally planned to use Ersilia's Uni-Mol model (eos39co) for its advantages:
-     - 3D molecular information capture
-     - Large-scale training (>200M conformations)
-     - SE(3) equivariant architecture
-   - Encountered challenges:
-     - Docker Hub connectivity issues (TLS handshake timeout)
-     - Internal server errors during model fetch
-     - Difficulties with local model initialization
+#### 1. Uni-Mol Model Implementation
+**Initial Approach**
+- Selected Ersilia's Uni-Mol model (eos39co) for:
+  - 3D molecular information capture
+  - Large-scale training (>200M conformations)
+  - SE(3) equivariant architecture
 
-     The logs can be found at `data/visualizations/featurization.log`.
+**Challenges & Solutions**
+| Challenge | Solution |
+|-----------|----------|
+| Docker Hub connectivity | Implemented proper TLS handling |
+| Resource limitations | Docker pruning for optimization |
+| Permission issues | Elevated necessary privileges |
 
-2. **Alternative Solution - Morgan Fingerprints**
-   - Switched to RDKit's Morgan fingerprints (ECFP4) because:
-     - No external dependencies (built into RDKit)
-     - Fast computation (910 molecules in ~10 seconds)
-     - Well-established in drug discovery
-     - High success rate in feature generation
+**Current Status**
+```bash
+# Generate molecular features
+python scripts/featurize_data_unimol.py
+```
+
+**Output Location**
+- Script: `scripts/featurize_data_unimol.py`
+- Features: `data/features_unimol/`
+- Statistics: `data/features_unimol/featurization_stats.json`
+- Logs: `data/visualizations/featurization.log`
+
+**Uni-Mol Model Analysis**
+
+| Aspect | Details |
+|--------|----------|
+| Architecture | SE(3)-equivariant transformer network |
+| Training Data | >200M molecular conformations |
+| Input | 3D molecular conformers |
+| Output | Continuous vector embeddings |
+
+*Feature Characteristics*
+| Metric | Description |
+|--------|-------------|
+| Dimension | Fixed-length continuous vectors |
+| Information | Global molecular properties + 3D structure |
+| Validation | Strict dimension and value checks |
+| Quality Checks | - NaN threshold: 1%<br>- Infinite threshold: 1%<br>- Zero threshold: 95% |
+
+*Key Advantages*
+| Feature | Benefit |
+|---------|----------|
+| 3D Information | Captures conformational properties |
+| Global Context | Models long-range atomic interactions |
+| Learned Features | Adapts to chemical patterns |
+| Robustness | Multiple embedding extraction paths |
+
+*Performance Characteristics*
+| Metric | Value |
+|--------|-------|
+| Processing | Batch-based (32 molecules/batch) |
+| Error Handling | Comprehensive with detailed logging |
+| Validation | Dimension and statistical checks |
+| Recovery | Multiple fallback paths for embeddings |
+
+    
+#### 2. Morgan Fingerprints Implementation
+**Alternative Approach**
+| Feature | Benefit |
+|---------|----------|
+| Dependencies | Built into RDKit - no external requirements |
+| Performance | ~910 molecules/10 seconds |
+| Reliability | Industry standard in drug discovery |
+| Success Rate | 100% feature generation |
+
 
 ```bash
 # Generate molecular features
@@ -147,37 +197,40 @@ This script performs several key tasks:
 4. **Visualization**: Creates PCA plots to visualize chemical space
 5. **Error Handling**: Tracks and reports any failed molecules
 
-#### Feature Analysis
+### 📋 Feature Analysis
 
-1. **Feature Properties**
-   - Dimensionality: 2048 binary bits per molecule
-   - Sparsity: ~96.7-96.9% of bits are zero
-   - Consistent statistics across splits:
-     - Active bits: 3.1-3.3% per molecule
-     - Most common substructures appear in 75-95% of molecules
-     - Many bits (substructures) never appear
-   - No NaN or infinite values
+#### 1. Feature Properties
+| Metric | Value |
+|--------|-------|
+| Dimensionality | 2048 binary bits/molecule |
+| Sparsity | 96.7-96.9% zeros |
+| Active Bits | 3.1-3.3% per molecule |
+| Common Substructures | 75-95% presence |
+| Data Quality | No NaN/infinite values |
 
-2. **Chemical Space Analysis**
-   - PCA visualization:
-     - Low variance explained (3.3-5.2% for first 2 PCs)
-     - Suggests highly complex chemical space
-   - Molecular similarity:
-     - Average Tanimoto similarity: 0.149-0.163
-     - Similar values within permeability classes
-     - Indicates diverse chemical space
+#### 2. Chemical Space Analysis
+| Analysis | Results |
+|----------|----------|
+| PCA Variance | 3.3-5.2% (first 2 PCs) |
+| Complexity | High (low explained variance) |
+| Tanimoto Similarity | 0.149-0.163 average |
+| Chemical Diversity | High (low similarity scores) |
 
-3. **Performance Metrics**
-   - Processing speed: ~400-600 molecules/second
-   - Memory efficiency: <1GB RAM usage
-   - Success rate: 100% (910/910 molecules)
-   - No failed SMILES parsing
+#### 3. Performance Metrics
+| Metric | Value |
+|--------|-------|
+| Speed | 400-600 molecules/second |
+| Memory | <1GB RAM usage |
+| Success Rate | 100% (910/910) |
+| Parse Errors | None |
 
-4. **Advantages for ML**
-   - Fixed-length representation
-   - Interpretable bits (each represents a substructure)
-   - Sparse binary format (memory efficient)
-   - Well-suited for many ML algorithms
+#### 4. ML Advantages
+| Feature | Benefit |
+|---------|----------|
+| Format | Fixed-length vectors |
+| Interpretability | Each bit = specific substructure |
+| Efficiency | Sparse binary storage |
+| Compatibility | Works with most ML algorithms |
 
 #### Output Structure
 
@@ -246,30 +299,39 @@ The visualization files provide insights into the feature space:
 
 ## Technical Details
 
-### Data Format
-Each compound in the dataset is represented by:
-- `Drug_ID`: Unique identifier for each compound
-- `Drug`: SMILES string (molecular structure)
-- `Y`: Permeability value in log10(cm/s)
-- `Permeability`: Actual permeability in cm/s (computed as 10^Y)
-- `Binary`: Classification label (0: low, 1: high permeability)
+### 📑 Data Format
 
-### SMILES Format
-SMILES (Simplified Molecular Input Line Entry System) strings in the dataset:
-- Represent molecular structure in text format
-- Average length: ~60 characters
-- Example: `CC(=O)NC1=CC=C(O)C=C1` (Acetaminophen/Paracetamol)
-- Most common elements: C, O, N, H (>95% of all atoms)
+| Field | Description |
+|-------|-------------|
+| `Drug_ID` | Unique compound identifier |
+| `Drug` | SMILES string (molecular structure) |
+| `Y` | log10(permeability) in cm/s |
+| `Permeability` | Actual permeability (10^Y cm/s) |
+| `Binary` | 0: low, 1: high permeability |
 
-### Data Quality
-1. **Class Balance**
-   - Overall: 51.6% low / 48.4% high permeability
-   - Training: 51.6% / 48.4%
-   - Validation: 46.2% / 53.8%
-   - Test: 54.4% / 45.6%
+### 🧬 SMILES Format
 
-2. **Value Distribution**
-   - Range: 1.74 × 10⁻⁸ to 3.09 × 10⁻⁴ cm/s
-   - Median: 7.39 × 10⁻⁶ cm/s (close to cutoff)
-   - Distribution: See `data/permeability_distribution.png`
+| Aspect | Details |
+|--------|----------|
+| Format | Text representation of molecular structure |
+| Length | ~60 characters average |
+| Example | `CC(=O)NC1=CC=C(O)C=C1` (Acetaminophen) |
+| Elements | C, O, N, H (>95% of atoms) |
+
+### 🎓 Data Quality
+
+#### Class Distribution
+| Split | Low Permeability | High Permeability |
+|-------|------------------|-------------------|
+| Overall | 51.6% | 48.4% |
+| Training | 51.6% | 48.4% |
+| Validation | 46.2% | 53.8% |
+| Test | 54.4% | 45.6% |
+
+#### Value Statistics
+| Metric | Value |
+|--------|-------|
+| Range | 1.74 × 10⁻⁸ to 3.09 × 10⁻⁴ cm/s |
+| Median | 7.39 × 10⁻⁶ cm/s |
+| Distribution | See `data/permeability_distribution.png` |
 
