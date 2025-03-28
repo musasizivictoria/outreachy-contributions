@@ -7,3 +7,4 @@ matplotlib>=3.3.0
 scikit-learn>=0.24.0
 rdkit>=2023.9.1
 unimol>=0.1.0
+xgboost>=2.0.0
