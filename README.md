@@ -297,6 +297,164 @@ The visualization files provide insights into the feature space:
 
 
 
+## 🧉 Model Development
+
+### Model Performance Analysis
+
+#### Performance Metrics
+
+| Metric | Train | Validation | Test |
+|--------|--------|------------|-------|
+| Accuracy | 97.8% | 72.5% | 73.6% |
+| Precision | 98.0% | 76.1% | 70.1% |
+| Recall | 97.4% | 71.4% | 73.5% |
+| F1-Score | 97.7% | 73.7% | 71.8% |
+| ROC-AUC | 99.8% | 79.6% | 80.3% |
+
+#### Analysis
+
+1. **Model Strengths**:
+   - Strong performance on training data (ROC-AUC: 99.8%)
+   - Consistent test performance (ROC-AUC: 80.3%)
+   - Good balance of precision and recall
+
+2. **Potential Overfitting**:
+   - Gap between train (97.8%) and test (73.6%) accuracy
+   - Suggests room for regularization tuning
+
+3. **Validation Stability**:
+   - Test metrics align with validation
+   - Indicates reliable model selection
+
+4. **Areas for Improvement**:
+   - I will investigate high-error cases
+   - Considering  feature importance analysis
+   - Experimenting with other model architectures
+
+### Model Architecture
+
+#### XGBoost Configuration
+
+| Parameter | Value | Purpose |
+|-----------|--------|----------|
+| Learning Rate | 0.01 | Slower, more robust learning |
+| Max Depth | 6 | Control tree complexity |
+| Subsample | 0.8 | Prevent overfitting |
+| Early Stopping | 50 rounds | Optimal model selection |
+| Tree Method | Histogram | Faster training on GPU/CPU |
+
+#### Training Process
+
+1. **Data Preparation**:
+   - 512-dimensional Uni-Mol embeddings
+   - Binary classification threshold: 8e-6 cm/s
+   - Train/Valid/Test splits: 637/91/182 samples
+
+2. **Training Strategy**:
+   - Early stopping on validation AUC
+   - Gradient boosting with 1000 max trees
+   - Binary logistic objective
+
+3. **Validation Approach**:
+   - Hold-out validation set
+   - Monitoring train/valid AUC gap
+   - Final test set evaluation
+
+### Model Architecture and Training
+
+#### 1. Model Configuration
+
+*Core Parameters*
+| Parameter | Value | Description |
+|-----------|--------|-------------|
+| Model Type | XGBoost | Gradient boosting framework |
+| Objective | binary:logistic | Binary classification |
+| Metric | AUC-ROC | Area under ROC curve |
+| Trees | 1000 | Maximum number of trees |
+
+*Optimization Parameters*
+| Parameter | Value | Description |
+|-----------|--------|-------------|
+| Learning Rate | 0.01 | Conservative learning pace |
+| Max Depth | 6 | Tree complexity control |
+| Min Child Weight | 1 | Leaf node regularization |
+| Subsample | 0.8 | Row sampling per tree |
+| Colsample | 0.8 | Column sampling per tree |
+
+*Training Control*
+| Parameter | Value | Description |
+|-----------|--------|-------------|
+| Early Stopping | 50 rounds | Prevents overfitting |
+| Tree Method | histogram | Efficient training algorithm |
+| Validation | Hold-out | 20% validation split |
+
+#### 2. Training Pipeline
+
+```bash
+# Train and evaluate model
+python scripts/train_model_unimol.py
+```
+
+*Training Process*
+| Stage | Details |
+|-------|----------|
+| Input | 512-dim Uni-Mol embeddings |
+| Labels | Binary (threshold: 8e-6 cm/s) |
+| Splits | Train (637), Valid (91), Test (182) |
+| GPU Support | Yes (via histogram method) |
+| Logging | Metrics every 100 iterations |
+
+#### Evaluation Metrics
+| Metric | Purpose |
+|--------|----------|
+| ROC-AUC | Overall ranking performance |
+| Precision | High permeability prediction accuracy |
+| Recall | High permeability detection rate |
+| F1-Score | Balance of precision and recall |
+
+#### Visualization Suite
+
+1. **ROC Curve Analysis**
+   
+   The Receiver Operating Characteristic (ROC) curve is plotted for each data split (train/valid/test) and saved in `data/visualizations_unimol/`.
+
+   *Technical Details*
+   | Component | Description |
+   |-----------|-------------|
+   | X-axis | False Positive Rate (FPR = FP/(FP+TN)) |
+   | Y-axis | True Positive Rate (TPR = TP/(TP+FN)) |
+   | Diagonal | Random classifier baseline (AUC = 0.5) |
+   | AUC Score | Area Under Curve (0.803 on test set) |
+
+   *Interpretation*
+   - Each point represents a different classification threshold
+   - Curve above diagonal indicates better than random
+   - Test AUC of 0.803 shows strong predictive power
+   - Trade-off between TPR and FPR visible in curve shape
+
+
+
+2. **Confusion Matrices**
+   - True vs predicted permeability classes
+   - Separate plots for train/valid/test
+   - Located in `data/visualizations_unimol/`
+
+2. **ROC Curves**
+   - True vs false positive rates
+   - AUC scores for each split
+   - Model comparison plots
+
+3. **Learning Curves**
+   - Training and validation metrics
+   - Early stopping points
+   - Performance plateaus
+
+#### Model Storage
+| File | Description |
+|------|-------------|
+| `models/unimol/xgboost_model.json` | XGBoost model 
+| `data/results_unimol/model_metrics.json` | Performance metrics |
+
 ## Technical Details
 
 ### 📑 Data Format
