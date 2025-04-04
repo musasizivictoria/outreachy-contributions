@@ -1,0 +1,1 @@
+{"train":{"Accuracy":0.8946204864,"ROC-AUC":0.9619834706,"Precision":0.8711018711,"Recall":0.9263080324,"F1-score":0.8978571429},"valid":{"Accuracy":0.7837370242,"ROC-AUC":0.866644317,"Precision":0.7515337423,"Recall":0.8477508651,"F1-score":0.7967479675},"test":{"Accuracy":0.8112903226,"ROC-AUC":0.8735223725,"Precision":0.784660767,"Recall":0.8580645161,"F1-score":0.8197226502}}

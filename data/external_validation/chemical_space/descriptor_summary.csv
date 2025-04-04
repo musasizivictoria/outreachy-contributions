@@ -1,0 +1,5 @@
+,MW,MW,MW,MW,LogP,LogP,LogP,LogP,TPSA,TPSA,TPSA,TPSA
+,mean,std,min,max,mean,std,min,max,mean,std,min,max
+Dataset,,,,,,,,,,,,
+External,463.75,234.39,93.06,4274.84,3.38,1.64,-10.33,11.71,101.52,83.23,0.0,1287.97
+Training,463.73,225.96,93.06,4274.84,3.39,1.64,-10.33,11.71,101.54,82.41,0.0,1287.97
