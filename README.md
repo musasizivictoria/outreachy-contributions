@@ -363,7 +363,7 @@ Our Morgan model achieves competitive but not SOTA performance
    - Uni-Mol underperforms despite modern architecture
    - Both models show significant train-test gap
 
-## TESTIMG THE MODEL ON UNSEEN DATA
+## TESTING THE MODEL ON UNSEEN DATA
 
 I generated fingerprints for 6603 compounds from ChEMBL
 Validation Results:
