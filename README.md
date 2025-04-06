@@ -216,6 +216,51 @@ data/
 
 ```
 
+ I provided Visualizations(All plots saved in `data/visualizations_unimol/`), Performance Analysis.
+
+Just a summary of the  XGBoost arch and performance analysis
+
+#### XGBoost Configuration
+
+| Parameter | Value | Purpose |
+|-----------|--------|----------|
+| Learning Rate | 0.01 | Slower, more robust learning |
+| Max Depth | 6 | Control tree complexity |
+| Subsample | 0.8 | Prevent overfitting |
+| Early Stopping | 50 rounds | Optimal model selection |
+| Tree Method | Histogram | Faster training on GPU/CPU |
+
+
+#### Performance Metrics
+
+| Metric | Train | Validation | Test |
+|--------|--------|------------|-------|
+| Accuracy | 97.8% | 72.5% | 73.6% |
+| Precision | 98.0% | 76.1% | 70.1% |
+| Recall | 97.4% | 71.4% | 73.5% |
+| F1-Score | 97.7% | 73.7% | 71.8% |
+| ROC-AUC | 99.8% | 79.6% | 80.3% |
+
+
+And interesting is the  Receiver Operating Characteristic (ROC) curve 
+
+its plotted for each data split (train/valid/test) and saved in `data/visualizations_unimol/`.
+
+   *Technical Details*
+   | Component | Description |
+   |-----------|-------------|
+   | X-axis | False Positive Rate (FPR = FP/(FP+TN)) |
+   | Y-axis | True Positive Rate (TPR = TP/(TP+FN)) |
+   | Diagonal | Random classifier baseline (AUC = 0.5) |
+   | AUC Score | Area Under Curve (0.803 on test set) |
+
+generally Test AUC of 0.803 shows strong predictive power
+
+Note:
+
+Even with a Test accuracy of 73.6%, there looks to be some  train-test accuracy gap which could be skeptically and evidence of overfitting. or may be we need more robust architecture optimization or even stronger regularisation.
+
+
 #### Feature Statistics
 The `featurization_stats.json` file contains detailed statistics about the generated features:
 
@@ -259,6 +304,7 @@ The visualization files provide insights into the feature space:
 
 
 
+
 ## Technical Details
 
 ### Data Format
@@ -288,6 +334,61 @@ SMILES (Simplified Molecular Input Line Entry System) strings in the dataset:
    - Median: 7.39 × 10⁻⁶ cm/s (close to cutoff)
    - Distribution: See `data/permeability_distribution.png`
 
+Experimenting with morgan descriptor, surprisingly i get a summary of results as;
+
+*Morgan Fingerprint Model*
+
+| Metric | Train | Validation | Test |
+|--------|--------|------------|-------|
+| Accuracy | 87.6% | 74.7% | 74.7% |
+| Precision | 85.2% | 73.2% | 71.3% |
+| Recall | 89.9% | 83.7% | 74.7% |
+| F1-Score | 87.5% | 78.1% | 72.9% |
+| ROC-AUC | 95.2% | 80.4% | 83.9% |
+
+ROC-AUC of 83.9% on the TDC test set  is quite competitive, thou still having a siginificant gap train-test gap(95.2%  to 83.9%   )
+
+So just to give us a brief of overall performace vs benchmark
+
+*Test Set Performance*
+   | Model | ROC-AUC | Notes |
+   |-------|----------|-------|
+   | Morgan (Ours) | 0.839 | Traditional fingerprints |
+   | Uni-Mol (Ours) | 0.803 | Deep learning embeddings |
+   | Wang et al. [1] | 0.872 | Boosting + NSGA-II |
+   | TDC Baseline | 0.850 | AttentiveFP |
+
+Our Morgan model achieves competitive but not SOTA performance
+   - Gap of ~3.3% from best published results
+   - Uni-Mol underperforms despite modern architecture
+   - Both models show significant train-test gap
+
+## TESTIMG THE MODEL ON UNSEEN DATA
+
+I generated fingerprints for 6603 compounds from ChEMBL
+Validation Results:
+
+Number of compounds: 6603
+
+ROC-AUC: 0.575
+
+This is very uncertain, but I realised the challengecam  from the dataset is imbalanced:
+
+1319 compounds (20%) with label 0 (low permeability)
+5284 compounds (80%) with label 1 (high permeability) meaning the model is not able to make strong predictions on this external dataset.
+
+Loooking at how best I can ind out the cause,  I checked the chemical space , and it looked closely similar as those in our training set, but I suggest there could be diference in the experimental condtions or assays  and also model limitations in capturing the structure-permeability relationship.
+
+![alt text](image.png)
+![alt text](image-1.png)
+
+from these visualizations, there could have been a bit highly imbalanced especially on the low and high permeability
+
+even when i balanced the dataset, i still get a low ROC-AUC of 0.586  just slightl better but still not good.
+
+So i did futher validation as bellow;
+
+
 ### Validation Data (ChEMBL)
 - **Source**: ChEMBL database version 35 (2022-2024)
 - **Compounds**: 1,045 recent measurements
@@ -306,6 +407,16 @@ We converted the continuous permeability values to a binary classification probl
 - **Binary Labels**:
   - High Permeability (1): ≥ 8 × 10⁻⁶ cm/s
   - Low Permeability (0): < 8 × 10⁻⁶ cm/s
+
+Well balanced: 46.7% high permeability, 53.3% low permeability
+
+Model Performance:
+
+Accuracy: 0.652
+ROC-AUC: 0.709
+F1-score: 0.652
+
+You can find more details below;
 
 **Rationale**:
 1. Binary classification models are often more robust and easier to validate
