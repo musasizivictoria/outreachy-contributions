@@ -132,13 +132,10 @@ This will:
      - Docker prunning to alow for more resources to the model fetch and run
      - Addressed the permission issues by escalating the privileges
 
-            ```bash
-         # Generate molecular features
-         python scripts/featurize_data_unimol.py
-         ```
-
-
-
+   ```bash
+   # Generate molecular features
+   python scripts/featurize_data_unimol.py
+   ```
      The model was successfully loaded and the features were generated. as you may find the script in `scripts/featurize_data_unimol.py`.
 
      The features were saved in the `data/features_unimol` directory.
