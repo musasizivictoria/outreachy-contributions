@@ -51,17 +51,31 @@ While the Caco2_Wang dataset originally provides continuous permeability values 
 ## Project Structure
 ```
 .
-├── data/               # Dataset and analysis files
-│   ├── caco2_train.csv   # Training set (637 compounds)
-│   ├── caco2_valid.csv   # Validation set (91 compounds)
-│   ├── caco2_test.csv    # Test set (182 compounds)
-│ 
-├── notebooks/         # Jupyter notebooks for analysis
-├── scripts/           # Python scripts
-├── models/            # Saved model checkpoints
-├── requirements.txt   # Project dependencies
-└── README.md         # Project documentation
+├── data/
+│   ├── analysis/           # Analysis results
+│   │   ├── chemical_space/ # Chemical space analysis
+│   │   ├── model/         # Model performance analysis
+│   │   ├── permeability/  # Permeability distribution analysis
+│   │   └── visualizations/ # Generated plots and figures
+│   ├── external_validation/ # External validation data
+│   ├── features/          # Generated molecular features
+│   ├── features_unimol/   # UniMol model features
+│   ├── logs/             # Processing and error logs
+│   ├── processed/        # Processed datasets
+│   ├── raw/              # Raw input data
+│   ├── results_unimol/   # UniMol model results
+│   ├── visualizations/   # General visualizations
+│   ├── visualizations_morgan/ # Morgan fingerprint visualizations
+│   └── visualizations_unimol/ # UniMol model visualizations
+├── models/
+│   ├── morgan/           # Morgan fingerprint models
+│   └── unimol/           # UniMol models
+├── notebooks/           # Jupyter notebooks for analysis
+├── scripts/             # Python processing scripts
+├── requirements.txt     # Project dependencies
+└── README.md           # Project documentation
 ```
+
 
 ## Installation Guide
 
